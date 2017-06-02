@@ -25,7 +25,7 @@ float[] ypr = new float[3];
 void setup(){
   size(600, 600, OPENGL);
   mesh=(TriangleMesh)new STLReader().loadBinary(sketchPath("person.stl"),STLReader.TRIANGLEMESH);
-  mesh.scale(10);
+  mesh.scale(5);
   
   
     
@@ -34,7 +34,7 @@ void setup(){
   gfx=new ToxiclibsSupport(this);
   println(Serial.list());
   //String portName = "COM6";
-  String portName = "/dev/ttyUSB0";
+  String portName = "/dev/ttyUSB4";
   port = new Serial(this, portName, 115200);
   port.write('r');
 }

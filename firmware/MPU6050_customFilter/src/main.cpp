@@ -18,16 +18,23 @@
 
 #include <I2Cdev.h>
 #include <MPU6050.h>
+#include "filter.h"
 
 MPU6050 sensor;
+highPass exampleFilter(64);
 
 void setup(/* arguments */) {
   Fastwire::setup(400, false);
   sensor.initialize();
-  /* code */
+  Serial.begin(115200);
 }
 
 void loop(/* arguments */) {
-  sensor.get
-  /* code */
+  int16_t rawData = sensor.getRotationY();
+  int16_t smoothData = exampleFilter.filter(rawData);
+
+  Serial.print(rawData);
+  Serial.print(" ");
+  Serial.println(smoothData);
+  delay(100);
 }

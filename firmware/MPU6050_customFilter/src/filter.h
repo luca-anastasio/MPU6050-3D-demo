@@ -8,12 +8,15 @@ private:
   int16_t* buffer;
   int8_t index, order;
   int32_t currentSum;
+  int32_t SpecialSum;
 public:
   mobileWindow (int8_t _order);
   ~mobileWindow();
 protected:
   void processData(int16_t inData);
+  void mediapond(int16_t);
   int16_t getData();
+  int16_t getSpecialdata();
 };
 
 class lowPass : mobileWindow {

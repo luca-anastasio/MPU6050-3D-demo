@@ -20,6 +20,7 @@ void mobileWindow::processData (int16_t inData) {
 void mobileWindow::mediapond(int16_t inData){
 int8_t contatore=0;
 int8_t dividendo=1;
+buffer[index]=inData;
 if (index==order)
 index=-1;
 for (int8_t i = index +1; contatore < order ; i++){
@@ -30,6 +31,8 @@ if (i==order) {
   i=0;
 }
 }
+
+index++;
 }
 
 int16_t mobileWindow::getData () {

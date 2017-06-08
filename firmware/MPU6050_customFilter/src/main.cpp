@@ -21,7 +21,7 @@
 #include "filter.h"
 
 MPU6050 sensor;
-lowPass exampleFilter(64);
+highPass exampleFilter(8);
 
 void setup(/* arguments */) {
   Fastwire::setup(400, false);

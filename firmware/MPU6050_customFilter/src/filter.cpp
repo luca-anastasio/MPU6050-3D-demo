@@ -17,22 +17,27 @@ void mobileWindow::processData (int16_t inData) {
   index++;
   if(index > order) index = 0;
 }
+
 void mobileWindow::mediapond(int16_t inData){
-int8_t contatore=0;
 int8_t dividendo=1;
+int8_t index2=0;
+SpecialSum=0;
 buffer[index]=inData;
-if (index==order)
-index=-1;
-for (int8_t i = index +1; contatore < order ; i++){
-SpecialSum= buffer[i]*(contatore/order);
-contatore++;
+index2=index;
+for (int8_t contatore=1 ; contatore <=order ; contatore++){
+  if (index==order-1)
+  index2=-1;
+  SpecialSum=SpecialSum+( buffer[index2+1]*(contatore/order));
 dividendo++;
-if (i==order) {
-  i=0;
-}
+index2++;
+if (index2==order-1) {
+  index2=0;
 }
 
+}
 index++;
+if(index == order){
+index = 0;}
 }
 
 int16_t mobileWindow::getData () {
@@ -56,6 +61,6 @@ highPass::highPass (int8_t __order) : mobileWindow(__order) {
 
 int16_t highPass::filter (int16_t data) {
   mediapond(data);
-  int16_t returnValue = data - getSpecialdata();
+  int16_t returnValue =  getSpecialdata();
   return returnValue;
 }

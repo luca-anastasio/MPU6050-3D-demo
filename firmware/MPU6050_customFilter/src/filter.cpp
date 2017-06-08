@@ -4,6 +4,8 @@ mobileWindow::mobileWindow (int8_t _order) {
   order = _order;
   buffer = new int16_t[order];
   index = 0;
+  smooth=0.2;
+  expvalue=0;
 }
 
 mobileWindow::~mobileWindow() {
@@ -16,6 +18,12 @@ void mobileWindow::processData (int16_t inData) {
   buffer[index] = inData;
   index++;
   if(index > order) index = 0;
+}
+
+float mobileWindow::expfilter(int16_t Indata) {
+int16_t currentvalue=Indata;
+expvalue=((smooth*currentvalue)+((1-smooth)*expvalue));
+return expvalue;
 }
 
 void mobileWindow::mediapond(int16_t inData){
@@ -45,7 +53,7 @@ int16_t mobileWindow::getData () {
 }
 
 int16_t mobileWindow::getSpecialdata(){
-  return (SpecialSum/order);
+  return (SpecialSum/(order/2));
 }
 
 lowPass::lowPass (int8_t __order) : mobileWindow(__order) {
@@ -60,7 +68,6 @@ highPass::highPass (int8_t __order) : mobileWindow(__order) {
 }
 
 int16_t highPass::filter (int16_t data) {
-  mediapond(data);
-  int16_t returnValue =  getSpecialdata();
-  return returnValue;
+  int16_t result=expfilter(data);
+  return result;
 }

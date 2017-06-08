@@ -9,6 +9,8 @@ private:
   int8_t index, order;
   int32_t currentSum;
   int32_t SpecialSum;
+  float smooth;
+  float expvalue;
 public:
   mobileWindow (int8_t _order);
   ~mobileWindow();
@@ -17,6 +19,7 @@ protected:
   void mediapond(int16_t);
   int16_t getData();
   int16_t getSpecialdata();
+  float expfilter(int16_t);
 };
 
 class lowPass : mobileWindow {

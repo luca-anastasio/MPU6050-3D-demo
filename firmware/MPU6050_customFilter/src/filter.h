@@ -35,4 +35,15 @@ public:
   int16_t filter(int16_t data);
 };
 
+class expFilter {
+private:
+  Fix16 average, smoothFactor, smoothFactorComp;
+  
+
+public:
+  expFilter (arguments);
+  virtual ~expFilter ();
+};
+
+
 #endif // filter_h

@@ -21,7 +21,9 @@
 #include "filter.h"
 
 MPU6050 sensor;
-highPass exampleFilter(64);
+highPass GyroFilterY(Fix16(0.01), 200);
+lowPass AccFilterY(Fix16(0.8));
+complementaryFilter CompFilterY(Fix16(0.5));
 
 void setup(/* arguments */) {
   Fastwire::setup(400, false);
@@ -30,11 +32,19 @@ void setup(/* arguments */) {
 }
 
 void loop(/* arguments */) {
-  int16_t rawData = sensor.getRotationY();
-  int16_t smoothData = exampleFilter.filter(rawData);
 
-  Serial.print(rawData);
-  Serial.print(" ");
-  Serial.println(smoothData);
+  int16_t GyroY = GyroFilterY.filterData(sensor.getRotationY());
+  int16_t AccY = AccFilterY.filterData(sensor.getAccelerationY());
+  int16_t Y = CompFilterY.filterData(GyroY, AccY);
+  Serial.println(Y);
+
+  // int16_t rawData = sensor.getRotationY();
+  // int16_t smoothData = exampleFilter.filterData(rawData);
+  //
+  // Serial.print(rawData);
+  // Serial.print(" ");
+  // Serial.println(smoothData);
+
+
   delay(100);
 }

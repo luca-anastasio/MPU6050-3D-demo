@@ -2,6 +2,7 @@
 #define filter_h
 
 #include <stdint.h>
+#include "fixmath.h"
 
 class mobileWindow {
 private:

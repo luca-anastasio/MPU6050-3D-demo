@@ -4,7 +4,7 @@ mobileWindow::mobileWindow (int8_t _order) {
   order = _order;
   buffer = new int16_t[order];
   index = 0;
-  smooth=0.2;
+  smooth=0.001;
   expvalue=0;
 }
 
@@ -68,6 +68,5 @@ highPass::highPass (int8_t __order) : mobileWindow(__order) {
 }
 
 int16_t highPass::filter (int16_t data) {
-  int16_t result=expfilter(data);
-  return result;
+  return data - expfilter(data);
 }

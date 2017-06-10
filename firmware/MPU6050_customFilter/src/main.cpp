@@ -18,33 +18,60 @@
 
 #include <I2Cdev.h>
 #include <MPU6050.h>
-#include "filter.h"
+#include "filter2.h"
 
-MPU6050 sensor;
-highPass GyroFilterY(Fix16(0.01), 200);
-lowPass AccFilterY(Fix16(0.8));
-complementaryFilter CompFilterY(Fix16(0.5));
+MPU6050 *sensor = new MPU6050();
+
+// highPass GyroFilterX(Fix16(0.01), 100);
+// lowPass AccFilterX(Fix16(0.9));
+// complementaryFilter CompFilterX(Fix16(0.5));
+//
+// highPass GyroFilterY(Fix16(0.01), 100);
+// lowPass AccFilterY(Fix16(0.9));
+// complementaryFilter CompFilterY(Fix16(0.5));
+//
+// highPass GyroFilterZ(Fix16(0.01), 100);
+// lowPass AccFilterZ(Fix16(0.9));
+// complementaryFilter CompFilterZ(Fix16(0.5));
+
+ImuFilter filter(sensor);
 
 void setup(/* arguments */) {
   Fastwire::setup(400, false);
-  sensor.initialize();
+  sensor->initialize();
+  sensor->setFullScaleAccelRange(3);
+  sensor->setFullScaleGyroRange(3);
   Serial.begin(115200);
+  filter.setSmoothFactor(0.99);
+  filter.setGyroOffset(200, 200, 200);
 }
 
 void loop(/* arguments */) {
 
-  int16_t GyroY = GyroFilterY.filterData(sensor.getRotationY());
-  int16_t AccY = AccFilterY.filterData(sensor.getAccelerationY());
-  int16_t Y = CompFilterY.filterData(GyroY, AccY);
-  Serial.println(Y);
-
-  // int16_t rawData = sensor.getRotationY();
-  // int16_t smoothData = exampleFilter.filterData(rawData);
+  // int16_t GyroX = GyroFilterX.filterData(sensor.getRotationX());
+  // int16_t GyroY = GyroFilterY.filterData(sensor.getRotationY());
+  // int16_t GyroZ = GyroFilterZ.filterData(sensor.getRotationZ());
   //
-  // Serial.print(rawData);
+  // int16_t AccX = AccFilterX.filterData(sensor.getAccelerationX());
+  // int16_t AccY = AccFilterY.filterData(sensor.getAccelerationY());
+  // int16_t AccZ = AccFilterZ.filterData(sensor.getAccelerationZ());
+  //
+  // int16_t X = CompFilterX.filterData(GyroX, AccX);
+  // int16_t Y = CompFilterY.filterData(GyroY, AccY);
+  // int16_t Z = CompFilterZ.filterData(GyroZ, AccZ);
+  //
+  // Serial.print(X);
   // Serial.print(" ");
-  // Serial.println(smoothData);
+  // Serial.print(Y);
+  // Serial.print(" ");
+  // Serial.println(Z);
 
+  filter.run();
+  Serial.print(int16_t(filter.getPitch()));
+  Serial.print(" ");
+  Serial.print(int16_t(filter.getRoll()));
+  Serial.print(" ");
+  Serial.println(int16_t(filter.getYaw()));
 
-  delay(100);
+  delay(50);
 }

@@ -39,8 +39,8 @@ ImuFilter filter(sensor);
 void setup(/* arguments */) {
   Fastwire::setup(400, false);
   sensor->initialize();
-  sensor->setFullScaleAccelRange(3);
-  sensor->setFullScaleGyroRange(3);
+  sensor->setFullScaleAccelRange(1);
+  sensor->setFullScaleGyroRange(1);
   Serial.begin(115200);
   filter.setSmoothFactor(0.99);
   filter.setGyroOffset(200, 200, 200);

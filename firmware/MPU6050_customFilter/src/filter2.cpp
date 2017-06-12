@@ -11,14 +11,15 @@ void complementaryFilter::setSmoothFactor(Fix16 smooth) {
   smoothFactorComp = Fix16(1) - smooth;
 }
 
-Fix16 complementaryFilter::filterData(int16_t Gyro, int16_t AccA, int16_t AccB) {
-  Fix16 filteredGyro = Fix16(Gyro) - gyroCalcOffset;
+Fix16 complementaryFilter::filterData(Fix16 & Gyro, Fix16 & AccA, Fix16 & AccB) {
+  Fix16 filteredGyro = Gyro - gyroCalcOffset;
   if ( abs(int16_t(filteredGyro)) < gyroOffset ) {
-    gyroCalcOffset = smoothFactorComp*Fix16(Gyro) + smoothFactor*gyroCalcOffset;
+    gyroCalcOffset = smoothFactorComp*Gyro + smoothFactor*gyroCalcOffset;
   }
-  Fix16 AccAngle = Fix16(AccA).atan2(Fix16(AccB)) *radToDeg;
-  Fix16 dt = Fix16( int16_t(millis()-timeInterval) ) / 10000;
-  averageValue = smoothFactor*(averageValue + (filteredGyro*dt) ) + smoothFactorComp*AccAngle;
+  Fix16 AccAngle = AccA.atan2(AccB) *fix16_rad_to_deg_mult;
+  Fix16 dt = Fix16( int16_t(millis()-timeInterval) ) / 1000;
+  averageValue = smoothFactor*(averageValue /*+ (filteredGyro*dt)*/ ) + smoothFactorComp*AccAngle;
+  timeInterval = millis();
   return averageValue;
 }
 
@@ -62,7 +63,13 @@ void ImuFilter::setSmoothFactor(Fix16 smooth) {
 
 void ImuFilter::run() {
   imu->getMotion6(ax, ay, az, gx, gy, gz);
-  Pitch = PitchFilter.filterData(*gx, *ay, *az);
-  Roll = RollFilter.filterData(-*gy, *ax, *az);
-  Yaw = YawFilter.filterData(*gz, *ax, *ay);
+  AccX = *ax;
+  AccY = *ay;
+  AccZ = *az;
+  GyroX = *gx;
+  GyroY = *gy;
+  GyroZ = *gz;
+  Pitch = PitchFilter.filterData(GyroX, AccY, AccZ);
+  Roll = RollFilter.filterData(GyroY, AccX, AccZ);
+  Yaw = YawFilter.filterData(GyroZ, AccX, AccY);
 }

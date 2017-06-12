@@ -7,14 +7,13 @@
 
 class complementaryFilter {
 private:
-  const Fix16 radToDeg = Fix16(180) / fix16_pi;
   Fix16 smoothFactor, smoothFactorComp, gyroCalcOffset, averageValue;
   uint32_t timeInterval;
   int16_t gyroOffset;
 public:
   complementaryFilter();
   void setSmoothFactor(Fix16 smooth);
-  Fix16 filterData(int16_t Gyro, int16_t AccA, int16_t AccB);
+  Fix16 filterData(Fix16 & Gyro, Fix16 & AccA, Fix16 & AccB);
   void setGyroOffset(int16_t offset);
 };
 

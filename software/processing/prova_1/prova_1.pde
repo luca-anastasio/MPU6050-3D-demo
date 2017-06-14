@@ -33,20 +33,30 @@ void setup(){
   
   gfx=new ToxiclibsSupport(this);
   println(Serial.list());
-  //String portName = "COM6";
-  String portName = "/dev/ttyUSB4";
+  String portName = "COM10";
+  //String portName = "/dev/ttyUSB4";
   port = new Serial(this, portName, 115200);
   port.write('r');
 }
 
 
 void draw(){
-   if (millis() - interval > 1000) {
-        // resend single character to trigger DMP init/start
-        // in case the MPU is halted/reset while applet is running
-        port.write('r');
-        interval = millis();
+  
+      while (port.available() > 0) {
+      float pitch =Integer.parseInt(port.readStringUntil(' ').trim());
+      print(pitch);
+      float roll =Integer.parseInt(port.readStringUntil(' ').trim());
+      print(roll);
+      float yaw= Integer.parseInt(port.readStringUntil('\n').trim());
+      println(yaw);
+      pitch=pitch*3.14/(180*67);
+      roll=roll*3.14/(180*67);
+      yaw=yaw*3.14/(180*67);
+      quat = Quaternion.createFromEuler(roll,yaw,pitch);
+     
+      
     }
+  
   background(0);
   lights();
   
@@ -58,41 +68,7 @@ void draw(){
   fill(0, 0, 255, 255);
   gfx.mesh(mesh,true,0);
  
+ 
+ 
   
-}
-
-void serialEvent(Serial port) {
-    interval = millis();
-    while (port.available() > 0) {
-        int ch = port.read();
-
-        if (synced == 0 && ch != '$') return;   // initial synchronization - also used to resync/realign if needed
-        synced = 1;
-        print ((char)ch);
-
-        if ((serialCount == 1 && ch != 2)
-            || (serialCount == 12 && ch != '\r')
-            || (serialCount == 13 && ch != '\n'))  {
-            serialCount = 0;
-            synced = 0;
-            return;
-        }
-
-        if (serialCount > 0 || ch == '$') {
-            teapotPacket[serialCount++] = (char)ch;
-            if (serialCount == 14) {
-                serialCount = 0; // restart packet byte position
-                
-                // get quaternion from data packet
-                q[0] = ((teapotPacket[2] << 8) | teapotPacket[3]) / 16384.0f;
-                q[1] = ((teapotPacket[4] << 8) | teapotPacket[5]) / 16384.0f;
-                q[2] = ((teapotPacket[6] << 8) | teapotPacket[7]) / 16384.0f;
-                q[3] = ((teapotPacket[8] << 8) | teapotPacket[9]) / 16384.0f;
-                for (int i = 0; i < 4; i++) if (q[i] >= 2) q[i] = -4 + q[i];
-                
-                // set our toxilibs quaternion to new data
-                quat.set(q[0], q[1], q[2], q[3]);
-                            }
-        }
-    }
 }

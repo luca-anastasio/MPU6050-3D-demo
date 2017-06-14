@@ -22,17 +22,7 @@
 
 MPU6050 *sensor = new MPU6050();
 
-// highPass GyroFilterX(Fix16(0.01), 100);
-// lowPass AccFilterX(Fix16(0.9));
-// complementaryFilter CompFilterX(Fix16(0.5));
-//
-// highPass GyroFilterY(Fix16(0.01), 100);
-// lowPass AccFilterY(Fix16(0.9));
-// complementaryFilter CompFilterY(Fix16(0.5));
-//
-// highPass GyroFilterZ(Fix16(0.01), 100);
-// lowPass AccFilterZ(Fix16(0.9));
-// complementaryFilter CompFilterZ(Fix16(0.5));
+
 
 ImuFilter filter(sensor);
 
@@ -42,36 +32,51 @@ void setup(/* arguments */) {
   sensor->setFullScaleAccelRange(1);
   sensor->setFullScaleGyroRange(1);
   Serial.begin(115200);
-  filter.setSmoothFactor(0.99);
+  filter.setSmoothFactor(0.98, 0.999, 0.01);
   filter.setGyroOffset(200, 200, 200);
 }
 
 void loop(/* arguments */) {
 
-  // int16_t GyroX = GyroFilterX.filterData(sensor.getRotationX());
-  // int16_t GyroY = GyroFilterY.filterData(sensor.getRotationY());
-  // int16_t GyroZ = GyroFilterZ.filterData(sensor.getRotationZ());
-  //
-  // int16_t AccX = AccFilterX.filterData(sensor.getAccelerationX());
-  // int16_t AccY = AccFilterY.filterData(sensor.getAccelerationY());
-  // int16_t AccZ = AccFilterZ.filterData(sensor.getAccelerationZ());
-  //
-  // int16_t X = CompFilterX.filterData(GyroX, AccX);
-  // int16_t Y = CompFilterY.filterData(GyroY, AccY);
-  // int16_t Z = CompFilterZ.filterData(GyroZ, AccZ);
-  //
-  // Serial.print(X);
-  // Serial.print(" ");
-  // Serial.print(Y);
-  // Serial.print(" ");
-  // Serial.println(Z);
+   filter.run();
 
-  filter.run();
+
   Serial.print(int16_t(filter.getPitch()));
   Serial.print(" ");
   Serial.print(int16_t(filter.getRoll()));
   Serial.print(" ");
   Serial.println(int16_t(filter.getYaw()));
-
-  delay(50);
+  Serial.flush();
+  // Fix16 pitch = filter.getPitch()/133;
+  // Fix16 roll = filter.getRoll()/133;
+  // Fix16 yaw = filter.getYaw()/133;
+  //
+  // Fix16 t0 = yaw.cos();
+  // Fix16 t1 = yaw.sin();
+  // Fix16 t2 = roll.cos();
+  // Fix16 t3 = roll.sin();
+  // Fix16 t4 = pitch.cos();
+  // Fix16 t5 = pitch.sin();
+  //
+  // Fix16 quatW = t0 * t2 * t4 + t1 * t3 * t5;
+  // Fix16 quatX = t0 * t3 * t4 - t1 * t2 * t5;
+  // Fix16 quatY = t0 * t2 * t5 + t1 * t3 * t4;
+  // Fix16 quatZ = t1 * t2 * t4 - t0 * t3 * t5;
+  //
+  // char packet[14];
+  //
+  // packet[0] = '$';
+  // packet[1] = 2;
+  // packet[2] = (char)(int32_t)quatW>>16;
+  // packet[3] = (char)(int32_t)quatW>>24;
+  // packet[4] = (char)(int32_t)quatX>>16;
+  // packet[5] = (char)(int32_t)quatX>>24;
+  // packet[6] = (char)(int32_t)quatY>>16;
+  // packet[7] = (char)(int32_t)quatY>>24;
+  // packet[8] = (char)(int32_t)quatZ>>16;
+  // packet[9] = (char)(int32_t)quatZ>>24;
+  // packet[12] = '\r';
+  // packet[13] = '\n';
+  //
+  // Serial.write(packet, 14);
 }

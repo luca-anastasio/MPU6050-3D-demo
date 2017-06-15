@@ -9,66 +9,49 @@ import processing.opengl.*;
 ToxiclibsSupport gfx;
 TriangleMesh mesh;
 
-Serial port;                         // The serial port
-char[] teapotPacket = new char[14];  // InvenSense Teapot packet
-int serialCount = 0;                 // current packet byte position
-int synced = 0;
-int interval = 0;
+Serial serialPort;                         // The serial port
+float[] angles = new float[3];
 
-float[] q = new float[4];
 Quaternion quat = new Quaternion(1, 0, 0, 0);
 
-float[] gravity = new float[3];
-float[] euler = new float[3];
-float[] ypr = new float[3];
-
 void setup(){
-  size(600, 600, OPENGL);
+  size(600, 600, P3D);
   mesh=(TriangleMesh)new STLReader().loadBinary(sketchPath("person.stl"),STLReader.TRIANGLEMESH);
   mesh.scale(5);
-  
-  
-    
   smooth();
-  
   gfx=new ToxiclibsSupport(this);
-  println(Serial.list());
-  String portName = "COM10";
-  //String portName = "/dev/ttyUSB4";
-  port = new Serial(this, portName, 115200);
-  port.write('r');
+  //String portName = Serial.list()[0];
+  //String portName = "COM10";
+  String portName = "/dev/ttyUSB0";
+  serialPort = new Serial(this, portName, 115200);
+  for(int i=0; i<3; i++) {
+    inBuffer[i] = "";
+    angles[i] = 0;
+  }
+  serialPort.bufferUntil('\n');
 }
 
 
 void draw(){
-  
-      while (port.available() > 0) {
-      float pitch =Integer.parseInt(port.readStringUntil(' ').trim());
-      print(pitch);
-      float roll =Integer.parseInt(port.readStringUntil(' ').trim());
-      print(roll);
-      float yaw= Integer.parseInt(port.readStringUntil('\n').trim());
-      println(yaw);
-      pitch=pitch*3.14/(180*67);
-      roll=roll*3.14/(180*67);
-      yaw=yaw*3.14/(180*67);
-      quat = Quaternion.createFromEuler(roll,yaw,pitch);
-     
-      
-    }
-  
+  for(int i=0; i<3; i++) {
+    angles[i] = angles[i]*3.14/(180*67);
+  }
+  quat = Quaternion.createFromEuler(angles[1],angles[2],angles[0]);
   background(0);
-  lights();
-  
+  lights();  
   translate(width/2,height/2,0);
   float[] axis = quat.toAxisAngle();
   rotate(axis[0], -axis[1], axis[3], axis[2]);
-  //gfx.origin(new Vec3D(),200);
   noStroke();
   fill(0, 0, 255, 255);
   gfx.mesh(mesh,true,0);
- 
- 
- 
-  
+}
+
+void serialEvent(Serial serialPort) {
+  for(int i=0; i<3; i++) {
+    try {
+      angles[i] = Integer.parseInt(serialPort.readStringUntil(' ').trim());
+    }
+    catch(Exception e) {}
+  }
 }

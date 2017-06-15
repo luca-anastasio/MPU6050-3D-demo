@@ -27,12 +27,14 @@ void complementaryFilter::setSmoothFactor(Fix16 complementary, Fix16 gyroscope) 
 
 }
 
-Fix16 complementaryFilter::filterData(Fix16 & Gyro, Fix16 & AccA, Fix16 & AccB) {
+Fix16 complementaryFilter::filterData(Fix16 & Gyro, Fix16 & AccA, Fix16 & AccB, Fix16 & AccC) {
   Fix16 filteredGyro = Gyro - gyroCalcOffset;
   if ( Abs(filteredGyro) < gyroOffset ) {
     gyroCalcOffset = smoothFactorGyro*gyroCalcOffset + smoothFactorCompGyro*Gyro;
   }
-  Fix16 AccAngle = AccA.atan2(AccB) *fix16_rad_to_deg_mult*100;
+  Fix16 AccAngle = AccB*AccB + AccC*AccC;
+  AccAngle = AccAngle.sqrt();
+  AccAngle = AccA.atan2(AccAngle) *fix16_rad_to_deg_mult*100;
   Fix16 dt = Fix16( int16_t(millis()-timeInterval) ) / 1000;
   averageValue = smoothFactor*(averageValue + (filteredGyro*dt) ) + smoothFactorComp*AccAngle;
   timeInterval = millis();
@@ -88,7 +90,7 @@ void ImuFilter::run() {
   GyroX = *gx;
   GyroY = *gy;
   GyroZ = *gz;
-  Pitch = PitchFilter.filterData(GyroX, AccY, AccZ);
-  Roll = RollFilter.filterData(GyroY, AccX, AccZ);
-  Yaw = YawFilter.filterData(GyroZ, AccY, AccX);
+  Pitch = PitchFilter.filterData(GyroX, AccY, AccZ, AccX);
+  Roll = RollFilter.filterData(GyroY, AccX, AccY, AccZ);
+  Yaw = YawFilter.filterData(GyroZ, AccZ, AccX, AccY);
 }

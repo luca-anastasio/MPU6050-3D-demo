@@ -32,51 +32,23 @@ void setup(/* arguments */) {
   sensor->setFullScaleAccelRange(1);
   sensor->setFullScaleGyroRange(1);
   Serial.begin(115200);
+
   filter.setSmoothFactor(0.98, 0.999, 0.01);
   filter.setGyroOffset(200, 200, 200);
 }
 
 void loop(/* arguments */) {
 
-   filter.run();
+  filter.run();
 
-
+  Serial.flush();
   Serial.print(int16_t(filter.getPitch()));
   Serial.print(" ");
   Serial.print(int16_t(filter.getRoll()));
   Serial.print(" ");
-  Serial.println(int16_t(filter.getYaw()));
-  Serial.flush();
-  // Fix16 pitch = filter.getPitch()/133;
-  // Fix16 roll = filter.getRoll()/133;
-  // Fix16 yaw = filter.getYaw()/133;
-  //
-  // Fix16 t0 = yaw.cos();
-  // Fix16 t1 = yaw.sin();
-  // Fix16 t2 = roll.cos();
-  // Fix16 t3 = roll.sin();
-  // Fix16 t4 = pitch.cos();
-  // Fix16 t5 = pitch.sin();
-  //
-  // Fix16 quatW = t0 * t2 * t4 + t1 * t3 * t5;
-  // Fix16 quatX = t0 * t3 * t4 - t1 * t2 * t5;
-  // Fix16 quatY = t0 * t2 * t5 + t1 * t3 * t4;
-  // Fix16 quatZ = t1 * t2 * t4 - t0 * t3 * t5;
-  //
-  // char packet[14];
-  //
-  // packet[0] = '$';
-  // packet[1] = 2;
-  // packet[2] = (char)(int32_t)quatW>>16;
-  // packet[3] = (char)(int32_t)quatW>>24;
-  // packet[4] = (char)(int32_t)quatX>>16;
-  // packet[5] = (char)(int32_t)quatX>>24;
-  // packet[6] = (char)(int32_t)quatY>>16;
-  // packet[7] = (char)(int32_t)quatY>>24;
-  // packet[8] = (char)(int32_t)quatZ>>16;
-  // packet[9] = (char)(int32_t)quatZ>>24;
-  // packet[12] = '\r';
-  // packet[13] = '\n';
-  //
-  // Serial.write(packet, 14);
+  Serial.print(int16_t(filter.getYaw()));
+  Serial.println(" ");
+
+  delay(10);
+
 }

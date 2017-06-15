@@ -22,7 +22,7 @@ private:
 public:
   complementaryFilter();
   void setSmoothFactor(Fix16 complementary, Fix16 gyroscope);
-  Fix16 filterData(Fix16 & Gyro, Fix16 & AccA, Fix16 & AccB);
+  Fix16 filterData(Fix16 & Gyro, Fix16 & AccA, Fix16 & AccB, Fix16 & AccC);
   void setGyroOffset(int16_t offset);
 };
 

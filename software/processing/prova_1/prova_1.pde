@@ -25,8 +25,7 @@ void setup(){
   String portName = "/dev/ttyUSB0";
   serialPort = new Serial(this, portName, 115200);
   for(int i=0; i<3; i++) {
-    inBuffer[i] = "";
-    angles[i] = 0;
+    angles[i] = 1;
   }
   serialPort.bufferUntil('\n');
 }
@@ -35,6 +34,8 @@ void setup(){
 void draw(){
   for(int i=0; i<3; i++) {
     angles[i] = angles[i]*3.14/(180*67);
+    //if (angles[i] > 360) angles[i] -= 360;
+    //else if (angles[i] < 360) angles[i] += 360;
   }
   quat = Quaternion.createFromEuler(angles[1],angles[2],angles[0]);
   background(0);

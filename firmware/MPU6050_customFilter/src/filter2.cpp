@@ -1,5 +1,17 @@
 #include "filter2.h"
 
+Integrator::Integrator (Fix16 initialValue) {
+  timeInterval = 0;
+  integral = initialValue;
+}
+
+Fix16 Integrator::integrate(Fix16 inData) {
+  Fix16 dt = Fix16( int16_t(millis()-timeInterval) ) / 1000;
+  integral += inData * dt;
+  timeInterval = millis();
+  return integral;
+}
+
 lowPass::lowPass() {}
 
 void lowPass::setSmoothFactor (Fix16 smooth) {
@@ -32,9 +44,9 @@ Fix16 complementaryFilter::filterData(Fix16 & Gyro, Fix16 & AccA, Fix16 & AccB, 
   if ( Abs(filteredGyro) < gyroOffset ) {
     gyroCalcOffset = smoothFactorGyro*gyroCalcOffset + smoothFactorCompGyro*Gyro;
   }
-  Fix16 AccAngle = AccB*AccB + AccC*AccC;
-  AccAngle = AccAngle.sqrt();
-  AccAngle = AccA.atan2(AccAngle) *fix16_rad_to_deg_mult*100;
+  //Fix16 AccAngle = AccB*AccB + AccC*AccC;
+  //AccAngle = AccAngle.sqrt();
+  Fix16 AccAngle = AccA.atan2(AccB) *fix16_rad_to_deg_mult*120;
   Fix16 dt = Fix16( int16_t(millis()-timeInterval) ) / 1000;
   averageValue = smoothFactor*(averageValue + (filteredGyro*dt) ) + smoothFactorComp*AccAngle;
   timeInterval = millis();
@@ -91,6 +103,6 @@ void ImuFilter::run() {
   GyroY = *gy;
   GyroZ = *gz;
   Pitch = PitchFilter.filterData(GyroX, AccY, AccZ, AccX);
-  Roll = RollFilter.filterData(GyroY, AccX, AccY, AccZ);
+  Roll = RollFilter.filterData(GyroY, AccX, AccZ, AccY);
   Yaw = YawFilter.filterData(GyroZ, AccZ, AccX, AccY);
 }

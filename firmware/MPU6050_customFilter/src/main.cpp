@@ -22,9 +22,15 @@
 
 MPU6050 *sensor = new MPU6050();
 
+#define FILTER_DEMO_OUTPUT
+//#define PROCESING_OUTPUT
 
+#if ( defined(FILTER_DEMO_OUTPUT) && defined(PROCESING_OUTPUT))
+  #error "only one at time"
+#endif
 
 ImuFilter filter(sensor);
+Integrator pitchIntegrator(0);
 
 void setup(/* arguments */) {
   Fastwire::setup(400, false);
@@ -33,22 +39,33 @@ void setup(/* arguments */) {
   sensor->setFullScaleGyroRange(1);
   Serial.begin(115200);
 
-  filter.setSmoothFactor(0.98, 0.999, 0.01);
+  filter.setSmoothFactor(0.9, 0.999, 0.01);
   filter.setGyroOffset(200, 200, 200);
 }
 
 void loop(/* arguments */) {
 
   filter.run();
-
   Serial.flush();
   Serial.print(int16_t(filter.getPitch()));
   Serial.print(" ");
+  #ifdef PROCESING_OUTPUT
   Serial.print(int16_t(filter.getRoll()));
   Serial.print(" ");
   Serial.print(int16_t(filter.getYaw()));
   Serial.println(" ");
+  #endif
 
-  delay(10);
+  #ifdef FILTER_DEMO_OUTPUT
+  int16_t gyroPitch = pitchIntegrator.integrate(sensor->getRotationX());
+  Serial.print(gyroPitch);
+  Serial.print(" ");
+  Fix16 ay = Fix16(sensor->getAccelerationY());
+  Fix16 az = Fix16(sensor->getAccelerationZ());
+  int16_t accPitch = int16_t(ay.atan2(az)*fix16_rad_to_deg_mult*80);
+  Serial.println(accPitch);
+  #endif
+
+  delay(50);
 
 }

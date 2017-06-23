@@ -5,6 +5,15 @@
 #include <Arduino.h>
 #include <MPU6050.h>
 
+class Integrator {
+private:
+  Fix16 integral;
+  uint32_t timeInterval;
+public:
+  Integrator (Fix16 initialValue);
+  Fix16 integrate (Fix16 inData);
+};
+
 class lowPass {
 private:
   Fix16 average, smoothFactor, smoothFactorComp;

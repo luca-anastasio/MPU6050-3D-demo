@@ -44,7 +44,7 @@ void draw(){
   float[] axis = quat.toAxisAngle();
   rotate(axis[0], -axis[1], axis[3], axis[2]);
   noStroke();
-  fill(0, 0, 255, 255);
+  fill(255, 255, 255, 255);
   gfx.mesh(mesh,true,0);
 }
 
